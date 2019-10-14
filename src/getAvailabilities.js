@@ -16,8 +16,8 @@ export default async function getAvailabilities(date) {
     .from("events")
     .where(function() {
       this.where("weekly_recurring", true).orWhere("ends_at", ">", +date);
-    });
-
+    })
+    .orderBy('kind', 'desc');
   for (const event of events) {
     for (
       let date = moment(event.starts_at);
