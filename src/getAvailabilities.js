@@ -1,7 +1,7 @@
 import moment from "moment";
 import knex from "knexClient";
 
-export default async function getAvailabilities(date) {
+const generateAvailabilityMap = date => {
   const availabilities = new Map();
   for (let i = 0; i < 7; ++i) {
     const tmpDate = moment(date).add(i, "days");
@@ -10,14 +10,19 @@ export default async function getAvailabilities(date) {
       slots: []
     });
   }
+  return availabilities;
+};
 
-  const events = await knex
+const fetchEventsForADay = date =>
+  knex
     .select("kind", "starts_at", "ends_at", "weekly_recurring")
     .from("events")
     .where(function() {
       this.where("weekly_recurring", true).orWhere("ends_at", ">", +date);
     })
-    .orderBy('kind', 'desc');
+    .orderBy("kind", "desc");
+
+const populateAvailableSlotsBaseOnEvents = (availabilities, events) => {
   for (const event of events) {
     for (
       let date = moment(event.starts_at);
@@ -34,6 +39,11 @@ export default async function getAvailabilities(date) {
       }
     }
   }
+};
 
-  return Array.from(availabilities.values())
+export default async function getAvailabilities(date) {
+  const availabilities = generateAvailabilityMap(date);
+  const events = await fetchEventsForADay(date);
+  populateAvailableSlotsBaseOnEvents(availabilities, events);
+  return Array.from(availabilities.values());
 }
