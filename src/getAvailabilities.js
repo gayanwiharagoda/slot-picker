@@ -1,9 +1,9 @@
 import moment from "moment";
 import knex from "knexClient";
 
-const generateAvailabilityMap = date => {
+const generateAvailabilityMap = (date, numberOfDays) => {
   const availabilities = new Map();
-  for (let i = 0; i < 7; ++i) {
+  for (let i = 0; i < numberOfDays; ++i) {
     const tmpDate = moment(date).add(i, "days");
     availabilities.set(tmpDate.format("d"), {
       date: tmpDate.toDate(),
@@ -30,6 +30,9 @@ const populateAvailableSlotsBaseOnEvents = (availabilities, events) => {
       date.add(30, "minutes")
     ) {
       const day = availabilities.get(date.format("d"));
+      if(!day) {
+        return
+      }
       if (event.kind === "opening") {
         day.slots.push(date.format("H:mm"));
       } else if (event.kind === "appointment") {
@@ -41,8 +44,8 @@ const populateAvailableSlotsBaseOnEvents = (availabilities, events) => {
   }
 };
 
-export default async function getAvailabilities(date) {
-  const availabilities = generateAvailabilityMap(date);
+export default async function getAvailabilities(date, numberOfDays= 7) {
+  const availabilities = generateAvailabilityMap(date, numberOfDays);
   const events = await fetchEventsForADay(date);
   populateAvailableSlotsBaseOnEvents(availabilities, events);
   return Array.from(availabilities.values());

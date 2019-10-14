@@ -99,5 +99,10 @@ describe("getAvailabilities", () => {
         "12:00"
       ]);
     });
+
+    it("should return only number of days (5)", async () => {
+      const availabilities = await getAvailabilities(new Date("2014-08-10"), 5);
+      expect(availabilities.length).toBe(5);
+    });
   });
 });
