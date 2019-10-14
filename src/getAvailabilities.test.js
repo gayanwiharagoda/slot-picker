@@ -31,7 +31,7 @@ describe("getAvailabilities", () => {
       ]);
     });
 
-    it("test 1", async () => {
+    it.only("test 1", async () => {
       const availabilities = await getAvailabilities(new Date("2014-08-10"));
       expect(availabilities.length).toBe(7);
 
@@ -47,7 +47,7 @@ describe("getAvailabilities", () => {
         "9:30",
         "10:00",
         "11:30",
-        "21:00"
+        "14:00"
       ]);
 
       expect(String(availabilities[6].date)).toBe(
