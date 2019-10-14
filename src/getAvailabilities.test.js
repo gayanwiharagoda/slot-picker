@@ -4,17 +4,22 @@ import getAvailabilities from "./getAvailabilities";
 describe("getAvailabilities", () => {
   beforeEach(() => knex("events").truncate());
 
-  describe("case 1", () => {
-    it("test 1", async () => {
+  describe("When there is no available time slots", () => {
+    it("Should return empty for all the time slots", async () => {
       const availabilities = await getAvailabilities(new Date("2014-08-10"));
-      expect(availabilities.length).toBe(7);
-      for (let i = 0; i < 7; ++i) {
-        expect(availabilities[i].slots).toEqual([]);
-      }
+      expect(availabilities).toMatchObject([
+        {slots: []},
+        {slots: []},
+        {slots: []},
+        {slots: []},
+        {slots: []},
+        {slots: []},
+        {slots: []}
+      ])
     });
   });
 
-  describe("case 2", () => {
+  describe("When appointment slots and opening slots and are on same date on a week", () => {
     beforeEach(async () => {
       await knex("events").insert([
         {
@@ -31,7 +36,7 @@ describe("getAvailabilities", () => {
       ]);
     });
 
-    it("test 1", async () => {
+    it("should return all time slots in opening time slot", async () => {
       const availabilities = await getAvailabilities(new Date("2014-08-10"));
       expect(availabilities.length).toBe(7);
 
@@ -56,7 +61,7 @@ describe("getAvailabilities", () => {
     });
   });
 
-  describe("case 3", () => {
+  describe("When appointment slots and opening slots and are on different date on a week", () => {
     beforeEach(async () => {
       await knex("events").insert([
         {
@@ -73,7 +78,7 @@ describe("getAvailabilities", () => {
       ]);
     });
 
-    it("test 1", async () => {
+    it("should return all time slots in opening time slot", async () => {
       const availabilities = await getAvailabilities(new Date("2014-08-10"));
       expect(availabilities.length).toBe(7);
 
